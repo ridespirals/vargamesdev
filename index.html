@@ -1,59 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>vargames dev</title>
-	<link rel="stylesheet" href="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>vargames</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <style type="text/css">
-        @import url('https://fonts.googleapis.com/css2?family=Caprasimo&display=swap');
-        body {
-            width: 100%;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(-45deg, #eecc55, #55ee77, #55aaee);
-            background-size: 400% 400%;
-            animation: bganim 15s ease infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 80px;
+      @import url("https://fonts.googleapis.com/css2?family=Caprasimo&display=swap");
+      body {
+        width: 100%;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(-45deg, #eecc55, #55ee77, #55aaee);
+        background-size: 400% 400%;
+        animation: bganim 15s ease infinite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 80px;
+      }
+      h1 {
+        font-family: "Caprasimo", serif;
+        font-weight: 400;
+        font-style: normal;
+        color: white;
+        text-shadow: #e58 3px 3px 0;
+        animation: shadowanim 15s ease infinite;
+      }
+      @keyframes bganim {
+        0% {
+          background-position: 0% 50%;
         }
-        h1 {
-            font-family: "Caprasimo", serif;
-            font-weight: 400;
-            font-style: normal;
-            color: white;
-            text-shadow: #e58 3px 3px 0;
-            animation: shadowanim 15s ease infinite;
+        50% {
+          background-position: 100% 50%;
         }
-        @keyframes bganim {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        100% {
+          background-position: 0% 50%;
         }
-        @keyframes shadowanim {
-            0% {
-                text-shadow: #e58 3px 3px 0;
-            }
-            25% {
-                text-shadow: #e58 -3px 3px 0;
-            }
-            50% {
-                text-shadow: #e58 -3px -3px 0;
-            }
-            75% {
-                text-shadow: #e58 3px -3px 0;
-            }
-            100% {
-                text-shadow: #e58 3px 3px 0;
-            }
+      }
+      @keyframes shadowanim {
+        0% {
+          text-shadow: #e58 3px 3px 0;
         }
+        25% {
+          text-shadow: #e58 -3px 3px 0;
+        }
+        50% {
+          text-shadow: #e58 -3px -3px 0;
+        }
+        75% {
+          text-shadow: #e58 3px -3px 0;
+        }
+        100% {
+          text-shadow: #e58 3px 3px 0;
+        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <h1>vargames</h1>
-</body>
+  </body>
 </html>
