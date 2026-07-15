@@ -56,10 +56,47 @@
           text-shadow: #e58 3px 3px 0;
         }
       }
+      #portfolio {
+        position: absolute;
+        bottom: 10px;
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        display: flex;
+        flex-direction: row;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.2);
+      }
+      #portfolio a {
+        color: white;
+        text-decoration: none;
+        margin-right: 1rem;
+      }
+      #portfolio a:hover {
+        text-shadow: #e58 3px 3px 0;
+        animation: shadowanim 15s ease infinite;
+      }
+      #personal, #projects {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
     </style>
   </head>
 
   <body>
-    <h1>vargames</h1>
+    <h1 class="vgtext">vargames</h1>
+    <div id="portfolio">
+      <div id="personal">
+        <a href="https://linkedin.com/in/john-varga" class="vgtext" target="_blank">LinkedIn</a>
+        <a href="https://github.com/ridespirals" class="vgtext" target="_blank">GitHub</a>
+        <a href="https://drive.google.com/file/d/1qIDpskJEuEpJmA-DI-3FAA25hZgWy4Kg/view?usp=sharing" class="vgtext" target="_blank">Resume/CV</a>
+      </div>
+      <div id="projects">
+        <a href="https://github.com/ridespirals/love-life" class="vgtext" target="_blank">Cellular Automata</a>
+        <a href="https://github.com/ridespirals/vargames-name-gen" class="vgtext" target="_blank">IGDB Name Generator</a>
+        <a href="https://github.com/ridespirals/fightsim" class="vgtext" target="_blank">Rock Paper Scissors fighter</a>
+      </div>
+    </div>
   </body>
 </html>
