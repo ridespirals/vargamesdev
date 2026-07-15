@@ -1,0 +1,14 @@
+{
+  "name": "vargamesdev",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:ridespirals/vargamesdev.git",
+  "author": "John Varga <john.g.varga@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "lite-server"
+  },
+  "devDependencies": {
+    "lite-server": "^2.6.1"
+  }
+}
