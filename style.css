@@ -1,0 +1,128 @@
+@import url("https://fonts.googleapis.com/css2?family=Caprasimo&display=swap");
+body {
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(-45deg, #eecc55, #55ee77, #55aaee);
+  background-size: 400% 400%;
+  animation: bganim 15s ease infinite;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: column;
+  font-size: 80px;
+}
+
+h1, h2 {
+  font-family: "Caprasimo", serif;
+  font-weight: 400;
+  font-style: normal;
+  color: white;
+  text-shadow: #e58 3px 3px 0;
+  animation: shadowanim 15s ease infinite;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+}
+h2 {
+  margin-top: 1rem;
+}
+
+@keyframes bganim {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+@keyframes shadowanim {
+  0% {
+    text-shadow: #e58 3px 3px 0;
+  }
+  25% {
+    text-shadow: #e58 -3px 3px 0;
+  }
+  50% {
+    text-shadow: #e58 -3px -3px 0;
+  }
+  75% {
+    text-shadow: #e58 3px -3px 0;
+  }
+  100% {
+    text-shadow: #e58 3px 3px 0;
+  }
+}
+
+#name {
+  margin-bottom: 10px;
+}
+
+#portfolio {
+  bottom: 10px;
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255,255, 0.6);
+}
+#portfolio a {
+  color: white;
+  text-decoration: none;
+  margin-right: 1rem;
+}
+#portfolio a:hover {
+  text-shadow: #e58 3px 3px 0;
+  animation: shadowanim 15s ease infinite;
+}
+#links {
+  display: flex;
+  flex-direction: row;
+}
+#personal, #projects {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vgtext.large {
+  display: none;
+}
+.vgtext.small {
+  display: none;
+}
+.vgtext.varga {
+  display: none;
+  top: 10px;
+}
+#full-name, #initials { display: none; }
+
+@media (min-width: 800px) {
+  .vgtext.large { display: block; }
+}
+@media (max-width: 800px) {
+  .vgtext.small { display: block;  }
+}
+@media (min-width: 500px) {
+  #full-name { display: block; }
+}
+@media (max-width: 500px) {
+  #initials { display: block; }
+  #links {
+    font-size: 1.5rem;
+    flex-direction: column;
+  }
+  #projects {
+    margin-top: 10px;
+  }  
+}
