@@ -1,8 +1,22 @@
 {
 	"folders": [
 		{
-			"path": "."
+			"path": ".",
+			"exclude": [
+				"**/node_modules",
+				"**/dist",
+				"**/jumper"
+			]
+		},
+		{
+			"path": "./jumper"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"editor.formatOnSave": true,
+		"files.exclude": {
+		  "**/node_modules": true,
+		  "**/dist": true
+		}
+	}
 }
