@@ -21,6 +21,10 @@ let settings: DevSettings = loadSettings();
 const listeners = new Set<Listener>();
 
 function loadSettings(): DevSettings {
+  // Production ignores persisted toggles so a prior local session can't stick.
+  if (import.meta.env.PROD) {
+    return { ...DEFAULT_DEV_SETTINGS };
+  }
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
@@ -59,6 +63,9 @@ export function setDevSetting<K extends keyof DevSettings>(
   key: K,
   value: DevSettings[K],
 ): void {
+  if (import.meta.env.PROD) {
+    return;
+  }
   if (settings[key] === value) {
     return;
   }

@@ -16,6 +16,7 @@ Stored in `localStorage` under `jumper.devSettings` via [`src/dev/settings.ts`](
 
 ## Wiring
 
+- Mounted only when `import.meta.env.DEV` (Vite). Production builds omit the toolbar and force default settings (all off), ignoring any leftover `localStorage`.
 - Clipping: `physicsSyncSystem` + skip fall death in `infiniteSpawnSystem`
 - Flatland: gap/obstacle spawn skipped; starter obstacles skipped
 - Forever: `Play` death handler restarts Play instead of GameOver

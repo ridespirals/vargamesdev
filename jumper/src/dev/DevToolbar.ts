@@ -18,8 +18,11 @@ const TOGGLES: { key: keyof DevSettings; label: string; title: string }[] = [
   },
 ];
 
-/** DOM toolbar that stays visible across Phaser scenes. */
+/** DOM toolbar that stays visible across Phaser scenes (dev builds only). */
 export function mountDevToolbar(parent: HTMLElement): void {
+  if (!import.meta.env.DEV) {
+    return;
+  }
   if (document.getElementById('dev-toolbar')) {
     return;
   }
