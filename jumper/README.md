@@ -30,6 +30,7 @@ Boot → Preload → Play ⇄ GameOver
 - **Score** comes from a count-up run timer.
 - **Parallax** layers are configured per level (count and scroll rate).
 - **AudioBus** supports ambient / stings / SFX; missing files are skipped until assets are added.
+- **Dev toolbar** (upper-right): Clipping, Flatland, Forever — persisted in `localStorage`.
 
 Design details and decisions live in [`PLAN/`](PLAN/README.md). Agent handoff: [`AGENTS.md`](AGENTS.md).
 

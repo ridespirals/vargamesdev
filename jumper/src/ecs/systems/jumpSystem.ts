@@ -1,10 +1,12 @@
 import { hasComponent } from 'bitecs';
 import type { GameWorld } from '../world';
+import { getDevSettings } from '../../dev/settings';
 
 export function jumpSystem(world: GameWorld): void {
   const eid = world.playerEid;
   const { JumpIntent, Grounded, Dead } = world.components;
-  if (hasComponent(world, eid, Dead)) {
+  if (hasComponent(world, eid, Dead) || getDevSettings().clipping) {
+    JumpIntent[eid] = 0;
     return;
   }
   if (JumpIntent[eid] && Grounded[eid]) {

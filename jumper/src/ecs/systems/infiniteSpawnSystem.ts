@@ -3,12 +3,17 @@ import type { Scene } from 'phaser';
 import type { GameWorld } from '../world';
 import { spawnFloor, spawnObstacle } from '../spawn';
 import { maxSafeGapPx } from '../../levels/types';
+import { getDevSettings } from '../../dev/settings';
 
 function randBetween(min: number, max: number): number {
   return min + Math.random() * (max - min);
 }
 
 function killPlayer(world: GameWorld): void {
+  if (getDevSettings().clipping) {
+    return;
+  }
+
   const { Dead, RunTimer, Score } = world.components;
   const eid = world.playerEid;
   if (hasComponent(world, eid, Dead) && Dead[eid]) {
@@ -34,6 +39,10 @@ function maybeSpawnObstacleOnFloor(
   floorLeftWorld: number,
   floorWidth: number,
 ): void {
+  if (getDevSettings().flatland) {
+    return;
+  }
+
   const { spawn } = world.level;
   if (Math.random() > spawn.obstacleChance) {
     return;
@@ -67,6 +76,7 @@ export function infiniteSpawnSystem(world: GameWorld, scene: Scene): void {
   world.scrollX += world.level.scrollSpeed * dt;
 
   const { spawn } = world.level;
+  const flatland = getDevSettings().flatland;
   const safeMaxGap = Math.min(spawn.maxGap, maxSafeGapPx(world.level));
   const viewRight = world.scrollX + scene.scale.width + 160;
 
@@ -78,9 +88,9 @@ export function infiniteSpawnSystem(world: GameWorld, scene: Scene): void {
     maybeSpawnObstacleOnFloor(world, scene, worldLeft, width);
 
     const gap =
-      Math.random() < spawn.gapChance
-        ? randBetween(spawn.minGap, safeMaxGap)
-        : 0;
+      flatland || Math.random() >= spawn.gapChance
+        ? 0
+        : randBetween(spawn.minGap, safeMaxGap);
     world.nextPlatformX = worldLeft + width + gap;
   }
 
@@ -141,6 +151,10 @@ export function infiniteSpawnSystem(world: GameWorld, scene: Scene): void {
     }
   }
 
+  if (getDevSettings().clipping) {
+    return;
+  }
+
   const playerSprite = world.handles.sprites.get(world.playerEid);
   if (playerSprite && playerSprite.y > scene.scale.height + 40) {
     killPlayer(world);
@@ -148,7 +162,13 @@ export function infiniteSpawnSystem(world: GameWorld, scene: Scene): void {
 }
 
 /** Side-hit against an obstacle ends the run; landing on top is allowed. */
-export function handleObstacleContact(world: GameWorld, playerGO: Phaser.Types.Physics.Arcade.GameObjectWithBody): void {
+export function handleObstacleContact(
+  world: GameWorld,
+  playerGO: Phaser.Types.Physics.Arcade.GameObjectWithBody,
+): void {
+  if (getDevSettings().clipping) {
+    return;
+  }
   const body = playerGO.body as Phaser.Physics.Arcade.Body;
   const sideHit =
     body.touching.left ||

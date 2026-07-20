@@ -63,7 +63,7 @@ npm run build-nolog    # writes dist/
 - Environments includes PSD/Aseprite — copy only PNGs into `levels/`.
 - No player sprites or audio files yet — placeholders / silent AudioBus.
 - Floor visuals are tall fills; physics uses a thin top-only collider to avoid side clipping.
-- Keep `spawn.maxGap` ≤ `maxSafeGapPx(level)` so gaps stay jumpable.
+- Dev toolbar (Clipping / Flatland / Forever) persists in `localStorage` and stays visible across scenes.
 
 ## Docs map
 

@@ -17,6 +17,7 @@ Index of design docs and the staged build checklist. Keep this file and [`stages
 | [input.md](input.md) | Space + gamepad jump |
 | [assets.md](assets.md) | Environments inventory + curation |
 | [deploy.md](deploy.md) | Vite dist + GitHub Pages |
+| [dev-toolbar.md](dev-toolbar.md) | Clipping / Flatland / Forever toggles |
 | [stages.md](stages.md) | Granular stages and exit criteria |
 
 ## Related

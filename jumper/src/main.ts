@@ -1,7 +1,10 @@
 import StartGame from './game/main';
+import { mountDevToolbar } from './dev/DevToolbar';
 
 document.addEventListener('DOMContentLoaded', () => {
-
-    StartGame('game-container');
-
+  const app = document.getElementById('app');
+  if (app) {
+    mountDevToolbar(app);
+  }
+  StartGame('game-container');
 });

@@ -13,6 +13,7 @@ import {
 import { tickSystems } from '../../ecs/systems';
 import { handleObstacleContact } from '../../ecs/systems/infiniteSpawnSystem';
 import { mountainDuskLevel } from '../../levels/mountain-dusk';
+import { getDevSettings } from '../../dev/settings';
 
 export class Play extends Scene {
   private world!: GameWorld;
@@ -51,27 +52,33 @@ export class Play extends Scene {
       spawnRunState(this.world);
 
       this.world.scrollX = 0;
-      let farthestRight = 0;
-      for (const floor of level.floors) {
-        const centerX = floor.x + floor.width / 2;
-        spawnFloor(this.world, this, centerX, floor.width);
-        farthestRight = Math.max(farthestRight, floor.x + floor.width);
+      if (getDevSettings().flatland) {
+        const width = Math.max(this.scale.width * 5, 4000);
+        spawnFloor(this.world, this, width / 2, width);
+        this.world.nextPlatformX = width;
+      } else {
+        let farthestRight = 0;
+        for (const floor of level.floors) {
+          const centerX = floor.x + floor.width / 2;
+          spawnFloor(this.world, this, centerX, floor.width);
+          farthestRight = Math.max(farthestRight, floor.x + floor.width);
 
-        if (floor.width >= 500) {
-          const obsW = 44;
-          const obsH = 30;
-          const obsWorldCenter = floor.x + floor.width * 0.55;
-          spawnObstacle(
-            this.world,
-            this,
-            obsWorldCenter - this.world.scrollX,
-            obsW,
-            obsH,
-          );
+          if (floor.width >= 500) {
+            const obsW = 44;
+            const obsH = 30;
+            const obsWorldCenter = floor.x + floor.width * 0.55;
+            spawnObstacle(
+              this.world,
+              this,
+              obsWorldCenter - this.world.scrollX,
+              obsW,
+              obsH,
+            );
+          }
         }
+        this.world.nextPlatformX =
+          Math.max(farthestRight, this.scale.width) + level.spawn.minGap;
       }
-      this.world.nextPlatformX =
-        Math.max(farthestRight, this.scale.width) + level.spawn.minGap;
 
       const playerY = level.floorY - 22;
       spawnPlayer(this.world, this, 220, playerY);
@@ -131,6 +138,12 @@ export class Play extends Scene {
           return;
         }
         this.ending = true;
+        if (getDevSettings().forever) {
+          this.time.delayedCall(150, () => {
+            this.scene.start('Play');
+          });
+          return;
+        }
         this.time.delayedCall(400, () => {
           this.scene.start('GameOver', { score, elapsedMs });
         });
