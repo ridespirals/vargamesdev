@@ -49,6 +49,6 @@ interface LevelConfig {
 }
 ```
 
-Floors render as boxes from `floorY` to the bottom of the screen (covering parallax below the surface). Block **obstacles** sit on the floor and must be jumped; side hits end the run. A future foreground layer can sit in front of the floor fill.
+Floors render as boxes from `floorY` to the bottom of the screen (covering parallax below the surface). Block **obstacles** sit on the floor and block the player (jump over or get pushed left until fully off-screen). A future foreground layer can sit in front of the floor fill.
 
 First level: `mountain-dusk` — see `src/levels/mountain-dusk.ts`.

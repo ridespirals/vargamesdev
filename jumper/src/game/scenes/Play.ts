@@ -11,7 +11,6 @@ import {
   spawnRunState,
 } from '../../ecs/spawn';
 import { tickSystems } from '../../ecs/systems';
-import { handleObstacleContact } from '../../ecs/systems/infiniteSpawnSystem';
 import { mountainDuskLevel } from '../../levels/mountain-dusk';
 import { getDevSettings } from '../../dev/settings';
 
@@ -88,16 +87,7 @@ export class Play extends Scene {
       const playerSprite = this.world.handles.sprites.get(this.world.playerEid);
       if (playerSprite && this.world.platformGroup && this.world.obstacleGroup) {
         this.physics.add.collider(playerSprite, this.world.platformGroup);
-        this.physics.add.collider(
-          playerSprite,
-          this.world.obstacleGroup,
-          () => {
-            handleObstacleContact(
-              this.world,
-              playerSprite as Phaser.Types.Physics.Arcade.GameObjectWithBody,
-            );
-          },
-        );
+        this.physics.add.collider(playerSprite, this.world.obstacleGroup);
       }
 
       this.world.hud = {

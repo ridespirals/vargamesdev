@@ -156,26 +156,14 @@ export function infiniteSpawnSystem(world: GameWorld, scene: Scene): void {
   }
 
   const playerSprite = world.handles.sprites.get(world.playerEid);
-  if (playerSprite && playerSprite.y > scene.scale.height + 40) {
-    killPlayer(world);
-  }
-}
-
-/** Side-hit against an obstacle ends the run; landing on top is allowed. */
-export function handleObstacleContact(
-  world: GameWorld,
-  playerGO: Phaser.Types.Physics.Arcade.GameObjectWithBody,
-): void {
-  if (getDevSettings().clipping) {
+  if (!playerSprite) {
     return;
   }
-  const body = playerGO.body as Phaser.Physics.Arcade.Body;
-  const sideHit =
-    body.touching.left ||
-    body.touching.right ||
-    body.blocked.left ||
-    body.blocked.right;
-  if (sideHit) {
+
+  // Fully off the left edge (right side of sprite past x=0), or fell through a pit.
+  const fullyOffLeft = playerSprite.x + playerSprite.displayWidth / 2 < 0;
+  const fellBelow = playerSprite.y > scene.scale.height + 40;
+  if (fullyOffLeft || fellBelow) {
     killPlayer(world);
   }
 }

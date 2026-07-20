@@ -24,7 +24,7 @@ Spawn clamps `maxGap` to `0.75 * reach` via `maxSafeGapPx()` so gaps stay jumpab
 
 Floors use a tall **visual** (surface → screen bottom) plus a **thin top collider**. The collider only enables `checkCollision.up` so the player does not clip into the sides of the fill.
 
-Floors are often long (variable width); gaps are uncommon (`gapChance`). Block **obstacles** sit on the floor surface and are jumpable; side contact kills.
+Floors are often long (variable width); gaps are uncommon (`gapChance`). Block **obstacles** sit on the floor and **block** the player (no instant kill); being shoved off the left edge of the screen ends the run.
 
 ## Grounded
 
@@ -32,4 +32,4 @@ Set from Arcade `body.blocked.down` / `touching.down` each frame after physics s
 
 ## Runner framing
 
-Player roughly fixed in X; world/floors scroll left at `scrollSpeed`. Falling below the view sets `Dead` and transitions to GameOver.
+Player holds a fixed X unless blocked on the right by an obstacle (then physics can push them left). Death when the player is **fully** off-screen left (`right edge < 0`) or falls through a pit below the view.

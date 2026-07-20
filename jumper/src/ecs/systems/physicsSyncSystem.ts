@@ -2,7 +2,7 @@ import { hasComponent } from 'bitecs';
 import type { GameWorld } from '../world';
 import { getDevSettings } from '../../dev/settings';
 
-/** Sync Arcade bodies ↔ Position/Velocity; keep player X locked for runner framing. */
+/** Sync Arcade bodies ↔ Position/Velocity; keep player X locked unless blocked by an obstacle. */
 export function physicsSyncSystem(world: GameWorld): void {
   const eid = world.playerEid;
   const { Position, Velocity, Dead } = world.components;
@@ -31,9 +31,14 @@ export function physicsSyncSystem(world: GameWorld): void {
   }
   body.setAllowGravity(true);
 
-  // Lock runner X on the body; copy physics Y onto the display object.
-  body.x = lockX - body.halfWidth;
-  sprite.setPosition(lockX, body.y + body.halfHeight);
+  const blockedByObstacle = body.blocked.right || body.touching.right;
+  if (!blockedByObstacle) {
+    // Runner framing: hold X unless an obstacle is shoving the player left.
+    body.x = lockX - body.halfWidth;
+    body.velocity.x = 0;
+  }
+
+  sprite.setPosition(body.x + body.halfWidth, body.y + body.halfHeight);
 
   Position.x[eid] = sprite.x;
   Position.y[eid] = sprite.y;
