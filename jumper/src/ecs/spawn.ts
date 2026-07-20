@@ -2,6 +2,8 @@ import { addComponent, addEntity, query } from 'bitecs';
 import type { Scene } from 'phaser';
 import type { GameWorld } from './world';
 import type { LevelConfig } from '../levels/types';
+import { resolveTileGap } from '../levels/types';
+import type { GappedParallaxHandle } from './handles';
 
 export function spawnRunState(world: GameWorld): void {
   const { RunTimer, Score } = world.components;
@@ -58,16 +60,47 @@ export function spawnParallaxLayers(world: GameWorld, scene: Scene, level: Level
     ParallaxLayer.scrollPxPerStep[eid] = layer.scrollPxPerStep;
     ParallaxLayer.depth[eid] = layer.depth;
 
-    const tile = scene.add.tileSprite(0, layer.yOffset ?? 0, w, h, layer.key);
+    const y = layer.yOffset ?? 0;
+    const tex = scene.textures.get(layer.key).getSourceImage() as HTMLImageElement;
+    const scale = tex?.height ? h / tex.height : 1;
+    const tileWidth = (tex?.width ?? w) * scale;
+    const useGaps = Boolean(layer.tile && layer.tileGap !== undefined);
+
+    if (useGaps) {
+      const handle: GappedParallaxHandle = {
+        kind: 'gapped',
+        sprites: [],
+        key: layer.key,
+        scale,
+        tileWidth,
+        y,
+        depth: layer.depth,
+        nextX: 0,
+        tileGap: layer.tileGap!,
+      };
+      // Initial fill across the viewport.
+      while (handle.nextX < w + tileWidth) {
+        const img = scene.add.image(handle.nextX, y, layer.key);
+        img.setOrigin(0, 0);
+        img.setScale(scale);
+        img.setDepth(layer.depth);
+        img.setScrollFactor(0);
+        handle.sprites.push(img);
+        handle.nextX += tileWidth + resolveTileGap(layer.tileGap);
+      }
+      world.handles.parallax.set(eid, handle);
+      continue;
+    }
+
+    // Seamless continuous tiling (default).
+    const tile = scene.add.tileSprite(0, y, w, h, layer.key);
     tile.setOrigin(0, 0);
     tile.setDepth(layer.depth);
     tile.setScrollFactor(0);
-    const tex = scene.textures.get(layer.key).getSourceImage() as HTMLImageElement;
     if (tex?.height) {
-      const scale = h / tex.height;
       tile.setTileScale(scale, scale);
     }
-    world.handles.parallax.set(eid, tile);
+    world.handles.parallax.set(eid, { kind: 'continuous', sprite: tile });
   }
 }
 

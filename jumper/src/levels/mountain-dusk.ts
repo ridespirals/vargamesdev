@@ -52,10 +52,11 @@ const levelBase = {
     {
       key: 'md-mountains',
       path: `${base}/mountains.png`,
-      scrollPxPerStep: 0.09,
+      scrollPxPerStep: 0.095,
       depth: 4,
       yOffset: 100,
-      tile: true
+      tile: true,
+      tileGap: () => 100 + Math.random() * 700,
     },
     {
       key: 'md-trees',

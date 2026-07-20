@@ -21,7 +21,7 @@ export function tickSystems(world: GameWorld, scene: Scene, delta: number): void
   groundedSystem(world);
   timerScoreSystem(world);
   infiniteSpawnSystem(world, scene);
-  parallaxSystem(world);
+  parallaxSystem(world, scene);
   animationSystem(world);
   audioSystem(world);
   hudSystem(world);

@@ -1,3 +1,5 @@
+export type TileGap = number | (() => number);
+
 export interface ParallaxLayerConfig {
   key: string;
   path: string;
@@ -5,7 +7,21 @@ export interface ParallaxLayerConfig {
   depth: number;
   /** Vertical shift in screen px (positive = down). Defaults to 0. */
   yOffset?: number;
+  /** When true, repeat the texture horizontally. */
   tile?: boolean;
+  /**
+   * Gap between repeated tiles (only when `tile` is true).
+   * Number = fixed px; function = evaluated per gap (e.g. randomize).
+   * Omit or 0 for seamless TileSprite tiling.
+   */
+  tileGap?: TileGap;
+}
+
+export function resolveTileGap(gap: TileGap | undefined): number {
+  if (gap === undefined) {
+    return 0;
+  }
+  return typeof gap === 'function' ? gap() : gap;
 }
 
 /** World-space floor segment: left edge `x` and `width`. Surface Y is level.floorY. */
