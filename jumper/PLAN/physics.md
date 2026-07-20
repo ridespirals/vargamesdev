@@ -32,8 +32,10 @@ Set from Arcade `body.blocked.down` / `touching.down` each frame after physics s
 
 ## Runner framing
 
-Player holds a fixed X unless blocked on the right by an obstacle (then physics can push them left). Death when the player is **fully** off-screen left (`right edge < 0`) or falls through a pit below the view.
+`PLAYER_GOAL_X` (220) is the runner’s **target**, not a hard lock. Each frame, if not currently shoved by an obstacle, the body nudges toward the goal at `PLAYER_CATCH_UP_SPEED` (px/sec). Recovery is intentionally slower than scroll/obstacle push so repeated hits can stack and shove the player off the left edge.
 
-Lock X by writing the Arcade **body** position (and `prev` / `prevFrame`) when already at the lock so `postUpdate` does not double-apply motion. After a shove, recover toward lock with **velocity** (not a teleport) so obstacles still block. Never full-`sprite.setPosition` after the physics step on a moving body.
+Death when the player is **fully** off-screen left (`right edge < 0`) or falls through a pit below the view.
+
+Catch-up nudges `body.x` after the physics step and leaves `prevFrame` alone so Arcade `postUpdate` carries the delta onto the sprite. Never full-`sprite.setPosition` after the physics step on a moving body.
 
 Placeholder anim must not `setScale` the physics Game Object — Arcade derives body size/offset from transform scale and it warps jump feel.

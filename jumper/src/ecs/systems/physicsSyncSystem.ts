@@ -2,16 +2,26 @@ import { hasComponent } from 'bitecs';
 import type { GameWorld } from '../world';
 import { getDevSettings } from '../../dev/settings';
 
-export const PLAYER_LOCK_X = 220;
+/** Screen X the runner tries to hold — a goal, not a hard lock. */
+export const PLAYER_GOAL_X = 220;
 
 /**
- * Sync Arcade bodies ↔ Position/Velocity; keep player X locked unless blocked by an obstacle.
+ * How fast the player walks back toward PLAYER_GOAL_X when free (px/sec).
+ * Keep this well below scrollSpeed so repeated obstacle shoves can still
+ * push the runner off the left edge before they fully recover.
+ */
+export const PLAYER_CATCH_UP_SPEED = 55;
+
+/**
+ * Sync Arcade bodies ↔ Position/Velocity.
  *
- * Never full-`setPosition` the sprite after the physics step — Arcade `postUpdate` applies
- * (position - prevFrame) onto the Game Object and would double-move it.
+ * X framing: PLAYER_GOAL_X is the target. Each frame we nudge a little toward
+ * it (not a snap), unless an obstacle is currently shoving. Catch-up is slow
+ * on purpose so multiple hits stack pressure toward the left edge.
  *
- * When recovering from a shove, move toward the lock with velocity (not a teleport) so
- * obstacles can still block and we do not clip through.
+ * Do not full-`setPosition` after the physics step — Arcade `postUpdate` applies
+ * (position - prevFrame) onto the Game Object. Nudging `body.x` while leaving
+ * `prevFrame` alone lets that delta carry the catch-up onto the sprite.
  */
 export function physicsSyncSystem(world: GameWorld): void {
   const eid = world.playerEid;
@@ -26,7 +36,7 @@ export function physicsSyncSystem(world: GameWorld): void {
     body.enable = false;
     body.setAllowGravity(false);
     body.stop();
-    body.reset(PLAYER_LOCK_X, sprite.y);
+    body.reset(PLAYER_GOAL_X, sprite.y);
     Position.x[eid] = sprite.x;
     Position.y[eid] = sprite.y;
     Velocity.x[eid] = 0;
@@ -41,26 +51,17 @@ export function physicsSyncSystem(world: GameWorld): void {
 
   const centerX = body.x + body.halfWidth;
   const shoved = body.blocked.right || body.touching.right;
-  const dx = PLAYER_LOCK_X - centerX;
+  const error = PLAYER_GOAL_X - centerX;
 
-  if (shoved) {
-    // Obstacle owns horizontal separation this frame; don't fight it.
-    if (body.velocity.x > 0) {
-      body.velocity.x = 0;
-    }
-  } else if (dx <= 0.5) {
-    // At (or slightly past) the lock — pin body X and zero postUpdate delta-X.
-    body.velocity.x = 0;
-    const lockedBodyX = PLAYER_LOCK_X - body.halfWidth;
-    body.x = lockedBodyX;
-    body.prev.x = lockedBodyX;
-    body.prevFrame.x = lockedBodyX;
+  // Clear intentional horizontal velocity; catch-up is applied as a position nudge.
+  body.velocity.x = 0;
+
+  if (!shoved && Math.abs(error) > 0.05) {
+    const maxStep = PLAYER_CATCH_UP_SPEED * (world.delta / 1000);
+    const step = Math.sign(error) * Math.min(maxStep, Math.abs(error));
+    // Leave prevFrame alone so postUpdate includes this nudge in the sprite delta.
+    body.x += step;
     body.updateCenter();
-    sprite.x = PLAYER_LOCK_X;
-  } else {
-    // Displaced left: ease back with velocity so colliders can still block.
-    const recover = Math.min(world.level.scrollSpeed * 2, dx * 12);
-    body.velocity.x = recover;
   }
 
   Position.x[eid] = body.x + body.halfWidth;
