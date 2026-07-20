@@ -11,7 +11,7 @@ Track progress here. Update status when a stage’s exit criteria are met.
 | 4 | Physics player | done | Grounded jump/fall; runner framing |
 | 5 | Timer + score HUD | done | Count-up while alive; freeze on death |
 | 6 | Parallax | done | Mountain Dusk LevelConfig with N scroll rates |
-| 7 | Animation system | done | Time-based clip advance wired (placeholder pulse) |
+| 7 | Animation system | done | FPS clips; oldman-walk run + jump frame/sheet |
 | 8 | Infinite platforms | done | Spawn/despawn; fall → GameOver |
 | 9 | Audio bus | done | API + event hooks; silent missing keys |
 | 10 | Dist publish | done | `dist/` built; relative assets OK |

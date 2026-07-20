@@ -38,7 +38,7 @@ Design details and decisions live in [`PLAN/`](PLAN/README.md). Agent handoff: [
 
 Phaser game size: 1024×768, `Scale.FIT`. Arcade gravity and jump velocity come from the active `LevelConfig`. World scroll speed drives platforms and parallax.
 
-First level: **mountain-dusk** (Mountain Dusk version A layers + country-platform tiles). Player is a placeholder rectangle until character art exists. Full environment packs live in `assets-source/Environments/` (not published).
+First level: **mountain-dusk** (Mountain Dusk version A layers). Player is **oldman-walk** (scale 2, pixel-perfect). Full environment packs live in `assets-source/Environments/`; character sheets in `assets-source/Spritesheets/` (runtime copies under `public/assets/sprites/`).
 
 ## Deploy
 

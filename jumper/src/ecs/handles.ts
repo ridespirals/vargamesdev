@@ -26,7 +26,7 @@ export type ParallaxHandle = ContinuousParallaxHandle | GappedParallaxHandle;
 
 /** Side tables for Phaser object refs (TypedArrays cannot hold them). */
 export class HandleTables {
-  sprites = new Map<EntityId, GameObjects.Rectangle | GameObjects.Sprite>();
+  sprites = new Map<EntityId, GameObjects.Sprite | GameObjects.Rectangle>();
   bodies = new Map<EntityId, Physics.Arcade.Body>();
   /** Thin top colliders for floors. */
   platforms = new Map<EntityId, GameObjects.Rectangle>();

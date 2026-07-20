@@ -16,6 +16,15 @@ const levelBase = {
   floorY: FLOOR_Y,
   platformColor: 0x3d2e22,
   obstacleColor: 0x8b4518,
+  player: {
+    scale: 2,
+    pixelArt: true,
+    runClipId: 'oldman-run',
+    // Freeze mid-stride (0-based frame 4) while airborne; swap to { type: 'sheet', clipId: '...' } for a jump sheet.
+    jump: { type: 'frame' as const, sheetKey: 'oldman-walk', frame: 4 },
+    bodyWidth: 14,
+    bodyHeight: 30,
+  },
   layers: [
     {
       key: 'md-sky',
@@ -46,7 +55,7 @@ const levelBase = {
       path: `${base}/far-mountains.png`,
       scrollPxPerStep: 0.08,
       depth: 3,
-      yOffset: 40,
+      yOffset: 0,
       tile: true
     },
     {
@@ -54,16 +63,16 @@ const levelBase = {
       path: `${base}/mountains.png`,
       scrollPxPerStep: 0.095,
       depth: 4,
-      yOffset: 100,
+      yOffset: 0,
       tile: true,
       tileGap: () => 100 + Math.random() * 700,
     },
     {
       key: 'md-trees',
       path: `${base}/trees.png`,
-      scrollPxPerStep: 0.4,
+      scrollPxPerStep: 0.1,
       depth: 5,
-      yOffset: -60,
+      yOffset: 0,
       tile: true
     },
   ],

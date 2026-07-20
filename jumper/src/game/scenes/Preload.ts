@@ -1,5 +1,10 @@
 import { Scene } from 'phaser';
 import { mountainDuskLevel } from '../../levels/mountain-dusk';
+import {
+  applySheetFilters,
+  preloadActorSheets,
+  sheetsForActor,
+} from '../../animation/types';
 
 export class Preload extends Scene {
   constructor() {
@@ -29,9 +34,12 @@ export class Preload extends Scene {
     for (const layer of mountainDuskLevel.layers) {
       this.load.image(layer.key, layer.path);
     }
+
+    preloadActorSheets(this, mountainDuskLevel.player);
   }
 
   create(): void {
+    applySheetFilters(this, sheetsForActor(mountainDuskLevel.player));
     this.scene.start('Play');
   }
 }

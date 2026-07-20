@@ -4,6 +4,11 @@ import type { GameWorld } from './world';
 import type { LevelConfig } from '../levels/types';
 import { resolveTileGap } from '../levels/types';
 import type { GappedParallaxHandle } from './handles';
+import { CLIPS } from '../animation/types';
+import { SPRITE_SHEETS } from '../sprites/sheets';
+
+/** Phaser.Textures.FilterMode.NEAREST */
+const FILTER_NEAREST = 0;
 
 export function spawnRunState(world: GameWorld): void {
   const { RunTimer, Score } = world.components;
@@ -16,7 +21,7 @@ export function spawnRunState(world: GameWorld): void {
   world.runEid = eid;
 }
 
-export function spawnPlayer(world: GameWorld, scene: Scene, x: number, y: number): void {
+export function spawnPlayer(world: GameWorld, scene: Scene, x: number): void {
   const { Position, Velocity, Player, Grounded, JumpIntent, AnimState } = world.components;
   const eid = addEntity(world);
   addComponent(world, eid, Position);
@@ -25,6 +30,16 @@ export function spawnPlayer(world: GameWorld, scene: Scene, x: number, y: number
   addComponent(world, eid, Grounded);
   addComponent(world, eid, JumpIntent);
   addComponent(world, eid, AnimState);
+
+  const visual = world.level.player;
+  const runClip = CLIPS[visual.runClipId];
+  const sheetKey = runClip?.sheetKey ?? 'oldman-walk';
+  const sheet = SPRITE_SHEETS[sheetKey] ?? SPRITE_SHEETS['oldman-walk']!;
+  const scale = visual.scale;
+  const bodyW = visual.bodyWidth ?? sheet.frameWidth;
+  const bodyH = visual.bodyHeight ?? sheet.frameHeight;
+  const displayH = sheet.frameHeight * scale;
+  const y = world.level.floorY - displayH / 2;
 
   Position.x[eid] = x;
   Position.y[eid] = y;
@@ -36,15 +51,24 @@ export function spawnPlayer(world: GameWorld, scene: Scene, x: number, y: number
   AnimState.frameIndex[eid] = 0;
   AnimState.elapsedInFrame[eid] = 0;
 
-  const rect = scene.add.rectangle(x, y, 28, 36, 0xf0c040);
-  rect.setDepth(20);
-  scene.physics.add.existing(rect);
-  const body = rect.body as Phaser.Physics.Arcade.Body;
+  const sprite = scene.add.sprite(x, y, sheetKey, 0);
+  sprite.setDepth(20);
+  sprite.setScale(scale);
+  if (visual.pixelArt !== false && sheet.pixelArt !== false) {
+    sprite.texture.setFilter(FILTER_NEAREST);
+  }
+
+  scene.physics.add.existing(sprite);
+  const body = sprite.body as Phaser.Physics.Arcade.Body;
   body.setCollideWorldBounds(false);
   body.setMaxVelocity(600, 900);
-  body.setSize(28, 36);
+  body.setSize(bodyW, bodyH);
+  body.setOffset(
+    (sheet.frameWidth - bodyW) / 2,
+    sheet.frameHeight - bodyH,
+  );
 
-  world.handles.sprites.set(eid, rect);
+  world.handles.sprites.set(eid, sprite);
   world.handles.bodies.set(eid, body);
   world.playerEid = eid;
 }

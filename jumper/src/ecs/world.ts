@@ -38,6 +38,8 @@ export type GameWorldContext = {
   };
   platformGroup?: Phaser.Physics.Arcade.Group;
   obstacleGroup?: Phaser.Physics.Arcade.Group;
+  /** Entity currently playing airborne jump anim (null when grounded). */
+  animAirborneEid: EntityId | null;
   delta: number;
   elapsed: number;
 };
@@ -74,6 +76,7 @@ export function createGameWorld(
     firedMusicCues: new Set<number>(),
     jumpInput,
     audio,
+    animAirborneEid: null,
     delta: 0,
     elapsed: 0,
   });

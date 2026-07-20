@@ -1,3 +1,5 @@
+import type { ActorSpriteConfig } from '../animation/types';
+
 export type TileGap = number | (() => number);
 
 export interface ParallaxLayerConfig {
@@ -55,6 +57,8 @@ export interface LevelConfig {
   id: string;
   displayName: string;
   layers: ParallaxLayerConfig[];
+  /** Player sprite, scale, run/jump animation. */
+  player: ActorSpriteConfig;
   gravity: number;
   jumpVelocity: number;
   scrollSpeed: number;

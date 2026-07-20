@@ -79,8 +79,8 @@ export class Play extends Scene {
           Math.max(farthestRight, this.scale.width) + level.spawn.minGap;
       }
 
-      const playerY = level.floorY - 22;
-      spawnPlayer(this.world, this, 220, playerY);
+      const playerX = 220;
+      spawnPlayer(this.world, this, playerX);
 
       this.events.once('shutdown', () => this.shutdown());
 

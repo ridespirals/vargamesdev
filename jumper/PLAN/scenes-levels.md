@@ -27,6 +27,7 @@ interface LevelConfig {
   id: string;
   displayName: string;
   layers: ParallaxLayerConfig[];
+  player: ActorSpriteConfig; // scale, run clip, jump frame|sheet
   gravity: number;
   jumpVelocity: number;
   scrollSpeed: number;
