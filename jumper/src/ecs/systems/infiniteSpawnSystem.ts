@@ -1,7 +1,8 @@
 import { addComponent, hasComponent, query, removeComponent, removeEntity } from 'bitecs';
 import type { Scene } from 'phaser';
 import type { GameWorld } from '../world';
-import { spawnPlatform } from '../spawn';
+import { spawnFloor, spawnObstacle } from '../spawn';
+import { maxSafeGapPx } from '../../levels/types';
 
 function randBetween(min: number, max: number): number {
   return min + Math.random() * (max - min);
@@ -27,6 +28,35 @@ function killPlayer(world: GameWorld): void {
   world.onPlayerDeath?.(Score.value[world.runEid] ?? 0, RunTimer.elapsedMs[world.runEid] ?? 0);
 }
 
+function maybeSpawnObstacleOnFloor(
+  world: GameWorld,
+  scene: Scene,
+  floorLeftWorld: number,
+  floorWidth: number,
+): void {
+  const { spawn } = world.level;
+  if (Math.random() > spawn.obstacleChance) {
+    return;
+  }
+  if (floorWidth < 180) {
+    return;
+  }
+
+  const { minWidth, maxWidth, minHeight, maxHeight } = spawn.obstacles;
+  const width = randBetween(minWidth, maxWidth);
+  const height = randBetween(minHeight, maxHeight);
+  const margin = Math.max(48, width);
+  const minLeft = floorLeftWorld + margin;
+  const maxLeft = floorLeftWorld + floorWidth - margin - width;
+  if (maxLeft <= minLeft) {
+    return;
+  }
+
+  const worldLeft = randBetween(minLeft, maxLeft);
+  const screenCenterX = worldLeft + width / 2 - world.scrollX;
+  spawnObstacle(world, scene, screenCenterX, width, height);
+}
+
 export function infiniteSpawnSystem(world: GameWorld, scene: Scene): void {
   if (hasComponent(world, world.playerEid, world.components.Dead)
     && world.components.Dead[world.playerEid]) {
@@ -37,24 +67,62 @@ export function infiniteSpawnSystem(world: GameWorld, scene: Scene): void {
   world.scrollX += world.level.scrollSpeed * dt;
 
   const { spawn } = world.level;
-  const viewRight = world.scrollX + scene.scale.width + 100;
+  const safeMaxGap = Math.min(spawn.maxGap, maxSafeGapPx(world.level));
+  const viewRight = world.scrollX + scene.scale.width + 160;
 
   while (world.nextPlatformX < viewRight) {
     const width = randBetween(spawn.minWidth, spawn.maxWidth);
-    const y = randBetween(spawn.yMin, spawn.yMax);
-    const worldX = world.nextPlatformX + width / 2;
-    // Convert world-space spawn X into current screen space.
-    const screenX = worldX - world.scrollX;
-    spawnPlatform(world, scene, screenX, y, width, spawn.height);
-    world.nextPlatformX += width + randBetween(spawn.minGap, spawn.maxGap);
+    const worldLeft = world.nextPlatformX;
+    const screenCenterX = worldLeft + width / 2 - world.scrollX;
+    spawnFloor(world, scene, screenCenterX, width);
+    maybeSpawnObstacleOnFloor(world, scene, worldLeft, width);
+
+    const gap =
+      Math.random() < spawn.gapChance
+        ? randBetween(spawn.minGap, safeMaxGap)
+        : 0;
+    world.nextPlatformX = worldLeft + width + gap;
   }
 
-  const { Platform, Position } = world.components;
+  const { Platform, Position, Obstacle } = world.components;
+
   for (const eid of [...query(world, [Platform, Position])]) {
-    const rect = world.handles.platforms.get(eid);
+    const collider = world.handles.platforms.get(eid);
+    const visual = world.handles.floorVisuals.get(eid);
+    if (!collider) {
+      continue;
+    }
+
+    Position.x[eid] = collider.x;
+    Position.y[eid] = world.level.floorY;
+
+    const body = collider.body as Phaser.Physics.Arcade.Body | null;
+    if (body) {
+      body.setVelocityX(-world.level.scrollSpeed);
+    }
+    if (visual) {
+      visual.x = collider.x;
+      visual.y = world.level.floorY;
+    }
+
+    if (collider.x + collider.width / 2 < -40) {
+      world.handles.platforms.delete(eid);
+      world.handles.floorVisuals.delete(eid);
+      world.platformGroup?.remove(collider, true, true);
+      visual?.destroy();
+      collider.destroy();
+      removeComponent(world, eid, Platform);
+      removeComponent(world, eid, Position);
+      removeEntity(world, eid);
+    }
+  }
+
+  for (const eid of [...query(world, [Obstacle, Position])]) {
+    const rect = world.handles.obstacles.get(eid);
     if (!rect) {
       continue;
     }
+
     Position.x[eid] = rect.x;
     Position.y[eid] = rect.y;
 
@@ -64,10 +132,10 @@ export function infiniteSpawnSystem(world: GameWorld, scene: Scene): void {
     }
 
     if (rect.x + rect.width / 2 < -40) {
-      world.handles.platforms.delete(eid);
-      world.platformGroup?.remove(rect, true, true);
+      world.handles.obstacles.delete(eid);
+      world.obstacleGroup?.remove(rect, true, true);
       rect.destroy();
-      removeComponent(world, eid, Platform);
+      removeComponent(world, eid, Obstacle);
       removeComponent(world, eid, Position);
       removeEntity(world, eid);
     }
@@ -75,6 +143,19 @@ export function infiniteSpawnSystem(world: GameWorld, scene: Scene): void {
 
   const playerSprite = world.handles.sprites.get(world.playerEid);
   if (playerSprite && playerSprite.y > scene.scale.height + 40) {
+    killPlayer(world);
+  }
+}
+
+/** Side-hit against an obstacle ends the run; landing on top is allowed. */
+export function handleObstacleContact(world: GameWorld, playerGO: Phaser.Types.Physics.Arcade.GameObjectWithBody): void {
+  const body = playerGO.body as Phaser.Physics.Arcade.Body;
+  const sideHit =
+    body.touching.left ||
+    body.touching.right ||
+    body.blocked.left ||
+    body.blocked.right;
+  if (sideHit) {
     killPlayer(world);
   }
 }

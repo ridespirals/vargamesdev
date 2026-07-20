@@ -39,7 +39,7 @@ export function spawnPlayer(world: GameWorld, scene: Scene, x: number, y: number
   scene.physics.add.existing(rect);
   const body = rect.body as Phaser.Physics.Arcade.Body;
   body.setCollideWorldBounds(false);
-  body.setMaxVelocity(600, 1000);
+  body.setMaxVelocity(600, 900);
   body.setSize(28, 36);
 
   world.handles.sprites.set(eid, rect);
@@ -58,7 +58,7 @@ export function spawnParallaxLayers(world: GameWorld, scene: Scene, level: Level
     ParallaxLayer.scrollPxPerStep[eid] = layer.scrollPxPerStep;
     ParallaxLayer.depth[eid] = layer.depth;
 
-    const tile = scene.add.tileSprite(0, 0, w, h, layer.key);
+    const tile = scene.add.tileSprite(0, layer.yOffset ?? 0, w, h, layer.key);
     tile.setOrigin(0, 0);
     tile.setDepth(layer.depth);
     tile.setScrollFactor(0);
@@ -71,23 +71,89 @@ export function spawnParallaxLayers(world: GameWorld, scene: Scene, level: Level
   }
 }
 
-export function spawnPlatform(
+/**
+ * Spawn a floor segment at screen-space center X.
+ * Visual fills from floorY to the bottom of the screen; physics is a thin top strip
+ * that only collides on its upper face (avoids side-clipping).
+ */
+export function spawnFloor(
   world: GameWorld,
   scene: Scene,
-  x: number,
-  y: number,
+  screenCenterX: number,
   width: number,
-  height: number,
 ): void {
   const { Position, Platform } = world.components;
+  const floorY = world.level.floorY;
+  const surfaceH = world.level.spawn.surfaceHeight;
+  const fillH = Math.max(surfaceH, scene.scale.height - floorY + 8);
+
   const eid = addEntity(world);
   addComponent(world, eid, Position);
   addComponent(world, eid, Platform);
-  Position.x[eid] = x;
-  Position.y[eid] = y;
+  Position.x[eid] = screenCenterX;
+  Position.y[eid] = floorY;
 
-  const rect = scene.add.rectangle(x, y, width, height, world.level.platformColor);
-  rect.setDepth(15);
+  const visual = scene.add.rectangle(
+    screenCenterX,
+    floorY,
+    width,
+    fillH,
+    world.level.platformColor,
+  );
+  visual.setOrigin(0.5, 0);
+  visual.setDepth(10);
+
+  const collider = scene.add.rectangle(
+    screenCenterX,
+    floorY + surfaceH / 2,
+    width,
+    surfaceH,
+    world.level.platformColor,
+    0,
+  );
+  collider.setDepth(11);
+  scene.physics.add.existing(collider);
+  const body = collider.body as Phaser.Physics.Arcade.Body;
+  body.setAllowGravity(false);
+  body.setImmovable(true);
+  body.setVelocityX(-world.level.scrollSpeed);
+  body.moves = true;
+  body.checkCollision.left = false;
+  body.checkCollision.right = false;
+  body.checkCollision.down = false;
+  body.checkCollision.up = true;
+
+  world.handles.platforms.set(eid, collider);
+  world.handles.floorVisuals.set(eid, visual);
+  world.platformGroup?.add(collider);
+}
+
+/** Solid block obstacle sitting on the floor surface (jump over or land on top). */
+export function spawnObstacle(
+  world: GameWorld,
+  scene: Scene,
+  screenCenterX: number,
+  width: number,
+  height: number,
+): void {
+  const { Position, Obstacle } = world.components;
+  const floorY = world.level.floorY;
+  const centerY = floorY - height / 2;
+
+  const eid = addEntity(world);
+  addComponent(world, eid, Position);
+  addComponent(world, eid, Obstacle);
+  Position.x[eid] = screenCenterX;
+  Position.y[eid] = centerY;
+
+  const rect = scene.add.rectangle(
+    screenCenterX,
+    centerY,
+    width,
+    height,
+    world.level.obstacleColor,
+  );
+  rect.setDepth(16);
   scene.physics.add.existing(rect);
   const body = rect.body as Phaser.Physics.Arcade.Body;
   body.setAllowGravity(false);
@@ -95,8 +161,8 @@ export function spawnPlatform(
   body.setVelocityX(-world.level.scrollSpeed);
   body.moves = true;
 
-  world.handles.platforms.set(eid, rect);
-  world.platformGroup?.add(rect);
+  world.handles.obstacles.set(eid, rect);
+  world.obstacleGroup?.add(rect);
 }
 
 export function getPlayerEid(world: GameWorld): number | null {

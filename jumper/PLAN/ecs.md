@@ -19,7 +19,8 @@ Scenes create a world and call systems each `update(time, delta)`.
 | `SpriteRef` | index into a Phaser sprite handle table |
 | `AnimState` | clip id, frame index, elapsed ms in frame |
 | `ParallaxLayer` | scroll rate, layer index |
-| `Platform` | tag for collidable ground |
+| `Platform` | tag for floor surface colliders |
+| `Obstacle` | tag for jump-over block hazards |
 | `RunTimer` | elapsed ms while run active |
 | `Score` | derived points |
 | `Dead` | tag when run ended |

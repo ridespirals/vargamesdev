@@ -11,6 +11,7 @@ export type GameComponents = {
   Grounded: number[];
   JumpIntent: number[];
   Platform: number[];
+  Obstacle: number[];
   ParallaxLayer: { scrollPxPerStep: number[]; depth: number[] };
   AnimState: { clipId: number[]; frameIndex: number[]; elapsedInFrame: number[] };
   RunTimer: { elapsedMs: number[]; active: number[] };
@@ -36,6 +37,7 @@ export type GameWorldContext = {
     scoreText: Phaser.GameObjects.Text;
   };
   platformGroup?: Phaser.Physics.Arcade.Group;
+  obstacleGroup?: Phaser.Physics.Arcade.Group;
   delta: number;
   elapsed: number;
 };
@@ -55,6 +57,7 @@ export function createGameWorld(
       Grounded: [] as number[],
       JumpIntent: [] as number[],
       Platform: [] as number[],
+      Obstacle: [] as number[],
       ParallaxLayer: { scrollPxPerStep: [], depth: [] },
       AnimState: { clipId: [], frameIndex: [], elapsedInFrame: [] },
       RunTimer: { elapsedMs: [], active: [] },

@@ -3,8 +3,15 @@ import { deleteWorld } from 'bitecs';
 import { AudioBus } from '../../audio/AudioBus';
 import { JumpInput } from '../../input/JumpInput';
 import { createGameWorld, type GameWorld } from '../../ecs/world';
-import { spawnParallaxLayers, spawnPlayer, spawnPlatform, spawnRunState } from '../../ecs/spawn';
+import {
+  spawnParallaxLayers,
+  spawnPlayer,
+  spawnFloor,
+  spawnObstacle,
+  spawnRunState,
+} from '../../ecs/spawn';
 import { tickSystems } from '../../ecs/systems';
+import { handleObstacleContact } from '../../ecs/systems/infiniteSpawnSystem';
 import { mountainDuskLevel } from '../../levels/mountain-dusk';
 
 export class Play extends Scene {
@@ -35,47 +42,89 @@ export class Play extends Scene {
         allowGravity: false,
         immovable: true,
       });
+      this.world.obstacleGroup = this.physics.add.group({
+        allowGravity: false,
+        immovable: true,
+      });
+
       spawnParallaxLayers(this.world, this, level);
       spawnRunState(this.world);
 
-      const startY = 560;
       this.world.scrollX = 0;
-      spawnPlatform(this.world, this, 300, startY, 500, level.spawn.height);
-      spawnPlatform(this.world, this, 700, 520, 180, level.spawn.height);
-      spawnPlatform(this.world, this, 980, 580, 160, level.spawn.height);
-      this.world.nextPlatformX = this.scale.width + 80;
+      let farthestRight = 0;
+      for (const floor of level.floors) {
+        const centerX = floor.x + floor.width / 2;
+        spawnFloor(this.world, this, centerX, floor.width);
+        farthestRight = Math.max(farthestRight, floor.x + floor.width);
 
-      spawnPlayer(this.world, this, 220, startY - 40);
+        if (floor.width >= 500) {
+          const obsW = 44;
+          const obsH = 30;
+          const obsWorldCenter = floor.x + floor.width * 0.55;
+          spawnObstacle(
+            this.world,
+            this,
+            obsWorldCenter - this.world.scrollX,
+            obsW,
+            obsH,
+          );
+        }
+      }
+      this.world.nextPlatformX =
+        Math.max(farthestRight, this.scale.width) + level.spawn.minGap;
+
+      const playerY = level.floorY - 22;
+      spawnPlayer(this.world, this, 220, playerY);
 
       this.events.once('shutdown', () => this.shutdown());
 
       const playerSprite = this.world.handles.sprites.get(this.world.playerEid);
-      if (playerSprite) {
+      if (playerSprite && this.world.platformGroup && this.world.obstacleGroup) {
         this.physics.add.collider(playerSprite, this.world.platformGroup);
+        this.physics.add.collider(
+          playerSprite,
+          this.world.obstacleGroup,
+          () => {
+            handleObstacleContact(
+              this.world,
+              playerSprite as Phaser.Types.Physics.Arcade.GameObjectWithBody,
+            );
+          },
+        );
       }
 
       this.world.hud = {
-        timeText: this.add.text(16, 12, 'Time 0:00.0', {
-          fontFamily: 'monospace',
-          fontSize: '18px',
-          color: '#ffffff',
-          stroke: '#000000',
-          strokeThickness: 3,
-        }).setDepth(100).setScrollFactor(0),
-        scoreText: this.add.text(16, 36, 'Score 0', {
-          fontFamily: 'monospace',
-          fontSize: '18px',
-          color: '#ffffff',
-          stroke: '#000000',
-          strokeThickness: 3,
-        }).setDepth(100).setScrollFactor(0),
+        timeText: this.add
+          .text(16, 12, 'Time 0:00.0', {
+            fontFamily: 'monospace',
+            fontSize: '18px',
+            color: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 3,
+          })
+          .setDepth(100)
+          .setScrollFactor(0),
+        scoreText: this.add
+          .text(16, 36, 'Score 0', {
+            fontFamily: 'monospace',
+            fontSize: '18px',
+            color: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 3,
+          })
+          .setDepth(100)
+          .setScrollFactor(0),
       };
 
-      this.add.text(512, 12, level.displayName, {
-        fontFamily: 'monospace',
-        fontSize: '16px',
-        color: '#e8e0d0',
-      }).setOrigin(0.5, 0).setDepth(100).setScrollFactor(0);
+      this.add
+        .text(512, 12, level.displayName, {
+          fontFamily: 'monospace',
+          fontSize: '16px',
+          color: '#e8e0d0',
+        })
+        .setOrigin(0.5, 0)
+        .setDepth(100)
+        .setScrollFactor(0);
 
       this.world.onPlayerDeath = (score, elapsedMs) => {
         if (this.ending) {
@@ -88,12 +137,14 @@ export class Play extends Scene {
       };
     } catch (err) {
       console.error('Play.create failed', err);
-      this.add.text(512, 384, `Play error:\n${String(err)}`, {
-        fontFamily: 'monospace',
-        fontSize: '16px',
-        color: '#ff6666',
-        align: 'center',
-      }).setOrigin(0.5);
+      this.add
+        .text(512, 384, `Play error:\n${String(err)}`, {
+          fontFamily: 'monospace',
+          fontSize: '16px',
+          color: '#ff6666',
+          align: 'center',
+        })
+        .setOrigin(0.5);
     }
   }
 
