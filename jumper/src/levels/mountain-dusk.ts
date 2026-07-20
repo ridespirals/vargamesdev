@@ -67,18 +67,19 @@ const levelBase = {
       tile: true
     },
   ],
-  // Long opening floors, few gaps.
+  // Opening floors with a fallible pit between them.
   floors: [
     { x: 0, width: 1100 },
-    { x: 1180, width: 800 },
+    { x: 1200, width: 800 },
   ],
   spawn: {
-    minGap: 36,
-    maxGap: 80,
+    // Wider than the player (~28px) so missing a jump drops you through.
+    minGap: 72,
+    maxGap: 110,
     minWidth: 320,
     maxWidth: 1000,
     surfaceHeight: 22,
-    gapChance: 0.14,
+    gapChance: 0.22,
     obstacleChance: 0.4,
     obstacles: {
       minWidth: 28,

@@ -20,11 +20,11 @@ export function animationSystem(world: GameWorld): void {
       }
     }
 
-    // Placeholder pulse so the animation clock is visible without a sheet.
+    // Placeholder pulse — alpha only. Never setScale on the physics Game Object:
+    // Arcade rebuilds the body from transform scale and warps jump/grounding.
     const sprite = world.handles.sprites.get(eid);
     if (sprite) {
-      const t = (AnimState.frameIndex[eid] % 2 === 0) ? 1 : 0.92;
-      sprite.setScale(1, t);
+      sprite.setAlpha(AnimState.frameIndex[eid] % 2 === 0 ? 1 : 0.85);
     }
   }
 }

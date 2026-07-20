@@ -2,7 +2,17 @@ import { hasComponent } from 'bitecs';
 import type { GameWorld } from '../world';
 import { getDevSettings } from '../../dev/settings';
 
-/** Sync Arcade bodies ↔ Position/Velocity; keep player X locked unless blocked by an obstacle. */
+export const PLAYER_LOCK_X = 220;
+
+/**
+ * Sync Arcade bodies ↔ Position/Velocity; keep player X locked unless blocked by an obstacle.
+ *
+ * Never full-`setPosition` the sprite after the physics step — Arcade `postUpdate` applies
+ * (position - prevFrame) onto the Game Object and would double-move it.
+ *
+ * When recovering from a shove, move toward the lock with velocity (not a teleport) so
+ * obstacles can still block and we do not clip through.
+ */
 export function physicsSyncSystem(world: GameWorld): void {
   const eid = world.playerEid;
   const { Position, Velocity, Dead } = world.components;
@@ -12,13 +22,11 @@ export function physicsSyncSystem(world: GameWorld): void {
     return;
   }
 
-  const lockX = 220;
-
   if (getDevSettings().clipping) {
     body.enable = false;
     body.setAllowGravity(false);
-    body.setVelocity(0, 0);
-    sprite.setPosition(lockX, sprite.y);
+    body.stop();
+    body.reset(PLAYER_LOCK_X, sprite.y);
     Position.x[eid] = sprite.x;
     Position.y[eid] = sprite.y;
     Velocity.x[eid] = 0;
@@ -31,17 +39,32 @@ export function physicsSyncSystem(world: GameWorld): void {
   }
   body.setAllowGravity(true);
 
-  const blockedByObstacle = body.blocked.right || body.touching.right;
-  if (!blockedByObstacle) {
-    // Runner framing: hold X unless an obstacle is shoving the player left.
-    body.x = lockX - body.halfWidth;
+  const centerX = body.x + body.halfWidth;
+  const shoved = body.blocked.right || body.touching.right;
+  const dx = PLAYER_LOCK_X - centerX;
+
+  if (shoved) {
+    // Obstacle owns horizontal separation this frame; don't fight it.
+    if (body.velocity.x > 0) {
+      body.velocity.x = 0;
+    }
+  } else if (dx <= 0.5) {
+    // At (or slightly past) the lock — pin body X and zero postUpdate delta-X.
     body.velocity.x = 0;
+    const lockedBodyX = PLAYER_LOCK_X - body.halfWidth;
+    body.x = lockedBodyX;
+    body.prev.x = lockedBodyX;
+    body.prevFrame.x = lockedBodyX;
+    body.updateCenter();
+    sprite.x = PLAYER_LOCK_X;
+  } else {
+    // Displaced left: ease back with velocity so colliders can still block.
+    const recover = Math.min(world.level.scrollSpeed * 2, dx * 12);
+    body.velocity.x = recover;
   }
 
-  sprite.setPosition(body.x + body.halfWidth, body.y + body.halfHeight);
-
-  Position.x[eid] = sprite.x;
-  Position.y[eid] = sprite.y;
+  Position.x[eid] = body.x + body.halfWidth;
+  Position.y[eid] = body.y + body.halfHeight;
   Velocity.x[eid] = body.velocity.x;
   Velocity.y[eid] = body.velocity.y;
 }

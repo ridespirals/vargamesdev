@@ -77,7 +77,7 @@ export function jumpReachPx(level: LevelConfig): number {
 
 /** Max gap with a safety margin so gaps stay jumpable. */
 export function maxSafeGapPx(level: LevelConfig): number {
-  return Math.floor(jumpReachPx(level) * 0.75);
+  return Math.floor(jumpReachPx(level) * 0.9);
 }
 
 /** Jump apex height in px (for sizing jumpable obstacles). */

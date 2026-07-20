@@ -155,14 +155,17 @@ export function infiniteSpawnSystem(world: GameWorld, scene: Scene): void {
     return;
   }
 
-  const playerSprite = world.handles.sprites.get(world.playerEid);
-  if (!playerSprite) {
+  // Use the Arcade body (authoritative before postUpdate syncs the Game Object).
+  const playerBody = world.handles.bodies.get(world.playerEid);
+  if (!playerBody) {
     return;
   }
 
-  // Fully off the left edge (right side of sprite past x=0), or fell through a pit.
-  const fullyOffLeft = playerSprite.x + playerSprite.displayWidth / 2 < 0;
-  const fellBelow = playerSprite.y > scene.scale.height + 40;
+  const centerX = playerBody.x + playerBody.halfWidth;
+  const centerY = playerBody.y + playerBody.halfHeight;
+  // Fully off the left edge (right side past x=0), or fell through a pit.
+  const fullyOffLeft = centerX + playerBody.halfWidth < 0;
+  const fellBelow = centerY > scene.scale.height + 40;
   if (fullyOffLeft || fellBelow) {
     killPlayer(world);
   }
