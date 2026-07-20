@@ -4,7 +4,7 @@ import { jumpPeakPx, maxSafeGapPx } from './types';
 const base = 'assets/levels/mountain-dusk';
 
 /** Screen height is 768; 1/3 up from bottom ≈ y = 512. */
-const FLOOR_Y = 512;
+const FLOOR_Y = 700;
 
 const levelBase = {
   id: 'mountain-dusk',
@@ -17,12 +17,54 @@ const levelBase = {
   platformColor: 0x3d2e22,
   obstacleColor: 0x8b4518,
   layers: [
-    { key: 'md-sky', path: `${base}/sky.png`, scrollPxPerStep: 0.02, depth: 0, yOffset: 0, tile: true },
-    { key: 'md-far-clouds', path: `${base}/far-clouds.png`, scrollPxPerStep: 0.05, depth: 1, yOffset: 0, tile: true },
-    { key: 'md-far-mountains', path: `${base}/far-mountains.png`, scrollPxPerStep: 0.1, depth: 2, yOffset: 0, tile: true },
-    { key: 'md-mountains', path: `${base}/mountains.png`, scrollPxPerStep: 0.18, depth: 3, yOffset: 0, tile: true },
-    { key: 'md-near-clouds', path: `${base}/near-clouds.png`, scrollPxPerStep: 0.28, depth: 4, yOffset: 0, tile: true },
-    { key: 'md-trees', path: `${base}/trees.png`, scrollPxPerStep: 0.4, depth: 5, yOffset: 0, tile: true },
+    {
+      key: 'md-sky',
+      path: `${base}/sky.png`,
+      scrollPxPerStep: 0.02,
+      depth: 0,
+      yOffset: 0,
+      tile: true
+    },
+    {
+      key: 'md-far-clouds',
+      path: `${base}/far-clouds.png`,
+      scrollPxPerStep: 0.05,
+      depth: 1,
+      yOffset: 0,
+      tile: true
+    },
+    {
+      key: 'md-near-clouds',
+      path: `${base}/near-clouds.png`,
+      scrollPxPerStep: 0.07,
+      depth: 2,
+      yOffset: 0,
+      tile: true
+    },
+    {
+      key: 'md-far-mountains',
+      path: `${base}/far-mountains.png`,
+      scrollPxPerStep: 0.08,
+      depth: 3,
+      yOffset: 40,
+      tile: true
+    },
+    {
+      key: 'md-mountains',
+      path: `${base}/mountains.png`,
+      scrollPxPerStep: 0.09,
+      depth: 4,
+      yOffset: 100,
+      tile: true
+    },
+    {
+      key: 'md-trees',
+      path: `${base}/trees.png`,
+      scrollPxPerStep: 0.4,
+      depth: 5,
+      yOffset: -60,
+      tile: true
+    },
   ],
   // Long opening floors, few gaps.
   floors: [
